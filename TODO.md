@@ -1,25 +1,9 @@
-# To-Dos
-## Demo 1
-* [ ] Music
-* [ ] World 1
-    * [X] Level 1 (Fresh Start)
-        * [X] Dialogue
-    * [ ] Level 2 (Keep Going!)
-    * [ ] Level 3 (Walkathon)
-* [ ] Fix Trampoline cause lag 
+# Android To-Dos
+* [ ] Controls
+    * [ ] Player Movement
+    * [ ] UI Navigation
+* [ ] Android Support in General
 
-## Demo 2
-* [ ] Interactive World Selection
-* [ ] Remake Main Menu
-* [ ] Credits Menu
-* [ ] Minigames/Challenges
-* [ ] Worlds 2-4
-* [ ] Android Support
-* [ ] Save Files
-* [ ] Mod Menu
-* [ ] Timed Level Support
-
-## Initial Release
-* [ ] iOS Support
-* [ ] Worlds 5-8
-* [ ] Secret Final Level
+# iOS To-Dos (After Demo 2)
+* [ ] Video Playback
+* [ ] iOS Support in General

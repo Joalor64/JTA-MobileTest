@@ -1,0 +1,14 @@
+JTA UI Concept
+
+UI     PAUSE button     UI
+ ________________________
+|			             | 
+|			             | 
+|			             | 
+|   	 Gameplay	     | 
+|			             | 
+|			             | 
+|			             | 
+|			             |
+ ------------------------
+LEFT/RIGHT	    JUMP/SPRINT
