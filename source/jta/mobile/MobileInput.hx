@@ -2,6 +2,7 @@ package jta.mobile;
 
 import flixel.FlxCamera;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.input.FlxInput.FlxInputState;
 import jta.mobile.VirtualButton;
 
 /**
@@ -15,13 +16,13 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 * Input.hx uses this to query touchscreen controls without requiring
 	 * every gameplay class to know about MobileInput.
 	 */
-	public static var active:Null<MobileInput>;
+	public static var activeInstance:Null<MobileInput>;
 
 	/**
 	 * The previously active manager.
 	 *
 	 * This is useful for substates such as PauseMenu. When the substate
-	 * disappears, the previous manager can become active again.
+	 * disappears, the previous manager can become activee again.
 	 */
 	private var previous:Null<MobileInput>;
 
@@ -37,8 +38,8 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	{
 		super();
 
-		previous = active;
-		active = this;
+		previous = activeInstance;
+		activeInstance = this;
 
 		if (camera != null)
 			cameras = [camera];
@@ -154,10 +155,10 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public static function checkInput(action:String, state:FlxInputState):Bool
 	{
-		if (active == null)
+		if (activeInstance == null)
 			return false;
 
-		for (button in active.members)
+		for (button in activeInstance.members)
 		{
 			if (button == null || button.action != action)
 				continue;
@@ -188,10 +189,10 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public static function checkAnyInput(state:FlxInputState):Bool
 	{
-		if (active == null)
+		if (activeInstance == null)
 			return false;
 
-		for (button in active.members)
+		for (button in activeInstance.members)
 		{
 			if (button == null || !button.enabled || !button.visible)
 				continue;
@@ -219,8 +220,8 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 
 	override public function destroy():Void
 	{
-		if (active == this)
-			active = previous;
+		if (activeInstance == this)
+			activeInstance = previous;
 
 		previous = null;
 

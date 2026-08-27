@@ -177,7 +177,7 @@ class Input
 			return false;
 
 		#if mobile
-		if (MobileInput.active != null)
+		if (MobileInput.activeInstance != null)
 		{
 			for (tag in tags)
 			{
