@@ -1,7 +1,7 @@
 package jta.mobile;
 
 import flixel.FlxCamera;
-import flixel.group.FlxTypedGroup;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import jta.mobile.VirtualButton;
 
 /**
