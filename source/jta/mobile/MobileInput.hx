@@ -102,7 +102,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 		addButton(margin, Flx.height - margin - 64, 'down', 'navigation');
 
 		addButton(FlxG.width - margin - 140, FlxG.height - margin - 64, 'cancel');
-		addButton(FlxG.width - margin - 64, FlxG.height - margin - 140, confirm');
+		addButton(FlxG.width - margin - 64, FlxG.height - margin - 140, 'confirm');
 	}
 
 	/**
