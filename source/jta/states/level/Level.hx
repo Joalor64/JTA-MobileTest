@@ -4,6 +4,7 @@ import haxe.Json;
 import flixel.FlxCamera;
 import flixel.FlxSubState;
 import flixel.tile.FlxTilemap;
+import jta.mobile.MobileInput;
 import jta.states.BaseState;
 import jta.substates.GameOver;
 import jta.substates.PauseMenu;
@@ -88,6 +89,8 @@ class Level extends BaseState
 	@:noCompletion
 	private var dialogueBox:DialogueBox;
 
+	private var mobileControls:Null<MobileInput>;
+
 	var paused:Bool = false;
 
 	/**
@@ -132,6 +135,12 @@ class Level extends BaseState
 		dialogueBox.scrollFactor.set();
 		dialogueBox.kill();
 		add(dialogueBox);
+
+		#if mobile
+		mobileControls = new MobileInput(camHUD);
+		mobileControls.setupGameplay();
+		add(mobileControls);
+		#end
 
 		super.create();
 	}

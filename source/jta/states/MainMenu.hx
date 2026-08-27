@@ -7,6 +7,7 @@ import jta.locale.Locale;
 import jta.states.BaseState;
 import jta.states.LevelSelect;
 import jta.states.config.Settings;
+import jta.mobile.MobileInput;
 import flixel.effects.particles.FlxEmitter;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
@@ -107,6 +108,12 @@ class MainMenu extends BaseState
 		versionTxt.setFormat(Paths.font('main'), 36, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		versionTxt.x = FlxG.width - versionTxt.width - 10;
 		add(versionTxt);
+
+		#if mobile
+		var mobileControls = new MobileInput();
+		mobileControls.setupMenuVertical();
+		add(mobileControls);
+		#end
 
 		super.create();
 	}

@@ -6,6 +6,7 @@ import jta.locale.Locale;
 import jta.states.MainMenu;
 import jta.states.LevelSelect;
 import jta.substates.BaseSubState;
+import jta.mobile.MobileInput;
 
 class LevelComplete extends BaseSubState
 {
@@ -45,6 +46,12 @@ class LevelComplete extends BaseSubState
 			selection.ID = i;
 			selectionGroup.add(selection);
 		}
+
+		#if mobile
+		mobileControls = new MobileInput(FlxG.cameras.list[1]);
+		mobileControls.setupMenuVertical();
+		add(mobileControls);
+		#end
 
 		super.create();
 	}

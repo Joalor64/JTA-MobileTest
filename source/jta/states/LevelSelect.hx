@@ -7,6 +7,7 @@ import jta.states.MainMenu;
 import jta.states.BaseState;
 import jta.registries.LevelRegistry;
 import jta.modding.PolymodHandler;
+import jta.mobile.MobileInput;
 
 class LevelSelect extends BaseState
 {
@@ -100,6 +101,12 @@ class LevelSelect extends BaseState
 		add(arrowR);
 
 		updateCovers();
+
+		#if mobile
+		var mobileControls = new MobileInput();
+		mobileControls.setupMenuHorizontal();
+		add(mobileControls);
+		#end
 
 		super.create();
 	}

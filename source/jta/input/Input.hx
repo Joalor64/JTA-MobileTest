@@ -4,9 +4,11 @@ import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.input.gamepad.FlxGamepadInputID;
 import flixel.input.FlxInput.FlxInputState;
+import jta.mobile.MobileInput;
 
 /**
- * A structure for input bindings, which includes both a keyboard key and a gamepad button.
+ * A structure for input bindings, which includes both a keyboard key
+ * and a gamepad button.
  */
 typedef Bind =
 {
@@ -22,7 +24,7 @@ typedef Bind =
 }
 
 /**
- * Class for handling inputs for keyboard and gamepad.
+ * Class for handling keyboard, gamepad, and mobile inputs.
  * @author Joalor64
  */
 @:nullSafety
@@ -91,25 +93,25 @@ class Input
 		return checkInput(tag, JUST_RELEASED);
 
 	/**
-	 * Checks if any of the inputs associated with the given tags were just pressed.
+	 * Checks whether any of the given inputs were just pressed.
 	 * @param tags An array of action names to check.
-	 * @return `true` if any of the keys or gamepad buttons were just pressed, `false` otherwise.
+	 * @return `true` if any of the inputs were just pressed, `false` otherwise.
 	 */
 	public static function anyJustPressed(tags:Array<String>):Bool
 		return checkAnyInputs(tags, JUST_PRESSED);
 
 	/**
-	 * Checks if any of the inputs associated with the given tags are currently pressed.
+	 * Checks whether any of the given inputs are pressed.
 	 * @param tags An array of action names to check.
-	 * @return `true` if any of the keys or gamepad buttons are currently pressed, `false` otherwise.
+	 * @return `true` if any of the inputs are currently pressed, `false` otherwise.
 	 */
 	public static function anyPressed(tags:Array<String>):Bool
 		return checkAnyInputs(tags, PRESSED);
 
 	/**
-	 * Checks if any of the inputs associated with the given tags were just released.
+	 * Checks whether any of the given inputs were just released.
 	 * @param tags An array of action names to check.
-	 * @return `true` if any of the keys or gamepad buttons were just released, `false` otherwise.
+	 * @return `true` if any of the inputs were just released, `false` otherwise.
 	 */
 	public static function anyJustReleased(tags:Array<String>):Bool
 		return checkAnyInputs(tags, JUST_RELEASED);
@@ -122,6 +124,11 @@ class Input
 	 */
 	public static function checkInput(tag:String, state:FlxInputState):Bool
 	{
+		#if mobile
+		if (MobileInput.checkInput(tag, state))
+			return true;
+		#end
+
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
 		if (binds.exists(tag))
@@ -166,10 +173,21 @@ class Input
 	 */
 	public static function checkAnyInputs(tags:Array<String>, state:FlxInputState):Bool
 	{
-		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
-
 		if (tags == null || tags.length <= 0)
 			return false;
+
+		#if mobile
+		if (MobileInput.active != null)
+		{
+			for (tag in tags)
+			{
+				if (MobileInput.checkInput(tag, state))
+					return true;
+			}
+		}
+		#end
+
+		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
 		for (tag in tags)
 		{
@@ -177,7 +195,7 @@ class Input
 			{
 				var bind:Null<Bind> = binds.get(tag);
 				if (bind == null)
-					return false;
+					continue;
 
 				#if FLX_KEYBOARD
 				if (FlxG.keys.checkStatus(bind.key, state))
