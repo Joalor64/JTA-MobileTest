@@ -15,6 +15,8 @@ class PauseMenu extends BaseSubState
 
 	var selectionGroup:FlxTypedGroup<FlxText>;
 
+	private var mobileControls:Null<MobileInput>;
+
 	public function new():Void
 	{
 		super(0x80000000);
