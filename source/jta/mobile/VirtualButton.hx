@@ -13,7 +13,7 @@ class VirtualButton extends FlxSprite
 
         this.action = action;
 
-        var folder:String = (type == 'default) ? '' : '/$type';
+        var folder:String = (type == 'default') ? '' : '/$type';
         var path:String = 'buttons$folder/$action';
 
         if (Assets.exists(Paths.image(path)))
