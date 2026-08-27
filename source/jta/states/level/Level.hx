@@ -89,7 +89,11 @@ class Level extends BaseState
 	@:noCompletion
 	private var dialogueBox:DialogueBox;
 
-	private var mobileControls:Null<MobileInput>;
+	/**
+ 	 * Mobile touchscreen controls.
+ 	*/
+	@:noCompletion
+	private var mobileControls:MobileInput;
 
 	var paused:Bool = false;
 
@@ -114,6 +118,13 @@ class Level extends BaseState
 		camHUD.bgColor = 0;
 		FlxG.cameras.add(camHUD, false);
 
+		#if mobile
+		mobileControls = new MobileInput();
+		mobileControls.cameras = [camHUD];
+		mobileControls.setupGameplay();
+		add(mobileControls);
+		#end
+
 		if (background != null)
 			add(background);
 
@@ -135,12 +146,6 @@ class Level extends BaseState
 		dialogueBox.scrollFactor.set();
 		dialogueBox.kill();
 		add(dialogueBox);
-
-		#if mobile
-		mobileControls = new MobileInput(camHUD);
-		mobileControls.setupGameplay();
-		add(mobileControls);
-		#end
 
 		super.create();
 	}

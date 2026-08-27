@@ -76,7 +76,7 @@ class VirtualButton extends FlxSprite
 		else if (Assets.exists(Paths.image('buttons/default')))
 			loadGraphic(Paths.image('buttons/default'));
 
-		scale.set(4, 4);
+		scale.set(5, 5);
 		updateHitbox();
 
 		scrollFactor.set();
