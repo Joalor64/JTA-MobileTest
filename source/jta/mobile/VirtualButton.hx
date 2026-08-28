@@ -2,6 +2,7 @@ package jta.mobile;
 
 import jta.Paths;
 import jta.Assets;
+import flixel.FlxCamera;
 import flixel.input.touch.FlxTouch;
 
 /**
@@ -85,6 +86,14 @@ class VirtualButton extends FlxSprite
 		antialiasing = false;
 	}
 
+	private function getTouchCamera():FlxCamera
+	{
+		if (cameras != null && cameras.length > 0 && cameras[0] != null)
+			return cameras[0];
+
+		return FlxG.camera;
+	}
+
 	/**
 	 * Returns whether a touch is currently pressing this button.
 	 * Multitouch is supported because every active touch is checked.
@@ -97,7 +106,7 @@ class VirtualButton extends FlxSprite
 		#if FLX_TOUCH
 		for (touch in FlxG.touches.list)
 		{
-			if (touch.pressed && touch.overlaps(this))
+			if (touch.pressed && touch.overlaps(this, getTouchCamera()))
 				return true;
 		}
 		#end
@@ -116,7 +125,7 @@ class VirtualButton extends FlxSprite
 		#if FLX_TOUCH
 		for (touch in FlxG.touches.list)
 		{
-			if (touch.justPressed && touch.overlaps(this))
+			if (touch.justPressed && touch.overlaps(this, getTouchCamera()))
 				return true;
 		}
 		#end
@@ -135,7 +144,7 @@ class VirtualButton extends FlxSprite
 		#if FLX_TOUCH
 		for (touch in FlxG.touches.list)
 		{
-			if (touch.justReleased && touch.overlaps(this))
+			if (touch.justReleased && touch.overlaps(this, getTouchCamera()))
 				return true;
 		}
 		#end
