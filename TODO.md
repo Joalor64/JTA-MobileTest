@@ -4,6 +4,6 @@
     * [ ] UI Navigation
 * [ ] Android Support in General
 
-# iOS To-Dos (After Demo 2)
+# iOS To-Dos
 * [ ] Video Playback
 * [ ] iOS Support in General
