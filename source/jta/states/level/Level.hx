@@ -118,13 +118,6 @@ class Level extends BaseState
 		camHUD.bgColor = 0;
 		FlxG.cameras.add(camHUD, false);
 
-		#if mobile
-		mobileControls = new MobileInput();
-		mobileControls.cameras = [camHUD];
-		mobileControls.setupGameplay();
-		add(mobileControls);
-		#end
-
 		if (background != null)
 			add(background);
 
@@ -140,6 +133,13 @@ class Level extends BaseState
 		hud = new HUD();
 		hud.cameras = [camHUD];
 		add(hud);
+
+		#if mobile
+		mobileControls = new MobileInput();
+		mobileControls.cameras = [camHUD];
+		mobileControls.setupGameplay();
+		add(mobileControls);
+		#end
 
 		dialogueBox = new DialogueBox(DialogueBoxPosition.BOTTOM);
 		dialogueBox.cameras = [camHUD];
