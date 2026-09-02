@@ -51,6 +51,9 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	public function addButton(x:Float, y:Float, action:String, ?type:String = 'default', ?imageName:String = null):VirtualButton
 	{
 		var button = new VirtualButton(x, y, action, type, imageName);
+		// Make sure the button uses the same cameras as the MobileInput group so
+		// touch overlap checks use the correct camera (e.g. the HUD camera).
+		button.cameras = cameras;
 		add(button);
 
 		return button;
