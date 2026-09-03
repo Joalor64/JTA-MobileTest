@@ -77,7 +77,8 @@ class VirtualButton extends FlxSprite
 		else if (Assets.exists(Paths.image('buttons/default')))
 			loadGraphic(Paths.image('buttons/default'));
 
-		scale.set(5, 5);
+		// Make the buttons slightly larger to increase the touchable area.
+		scale.set(6, 6);
 		updateHitbox();
 
 		scrollFactor.set();
