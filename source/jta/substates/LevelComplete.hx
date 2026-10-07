@@ -51,7 +51,7 @@ class LevelComplete extends BaseSubState
 
 		#if mobile
 		mobileControls = new MobileInput(FlxG.cameras.list[1]);
-		mobileControls.setupMenuVertical();
+		mobileControls.setupMenuVertical(false);
 		add(mobileControls);
 		#end
 

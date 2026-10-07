@@ -13,9 +13,19 @@ import flixel.input.touch.FlxTouch;
  *
  * This allows the same A graphic to represent both `jump` in gameplay
  * and `confirm` in menus.
+ *
+ * Input state is tracked per button (not per touch), so sliding a finger
+ * onto a button counts as a press and sliding off counts as a release.
+ * The state is refreshed once per frame by `MobileInput`'s plugin, right
+ * after Flixel updates its touch input and before the state updates.
  */
 class VirtualButton extends FlxSprite
 {
+	/**
+	 * Size in pixels of the source button graphics.
+	 */
+	public static inline var BASE_SIZE:Int = 16;
+
 	/**
 	 * Logical input action represented by this button.
 	 */
@@ -29,24 +39,44 @@ class VirtualButton extends FlxSprite
 	/**
 	 * Whether this button can currently receive touch input.
 	 */
-	public var enabled:Bool = true;
-
-	/**
-	 * Whether the button should be visible.
-	 */
-	public var visibleWhenEnabled:Bool = true;
+	public var enabled(default, set):Bool = true;
 
 	/**
 	 * Normal button opacity.
 	 */
-	public var normalAlpha:Float = 0.7;
+	public var normalAlpha:Float = 0.6;
 
 	/**
 	 * Opacity while being pressed.
 	 */
 	public var pressedAlpha:Float = 1.0;
 
-	public function new(x:Float, y:Float, action:String, ?type:String = 'default', ?imageName:String = null):Void
+	/**
+	 * Whether a touch is over this button this frame.
+	 */
+	var currentlyPressed:Bool = false;
+
+	/**
+	 * Whether a touch was over this button last frame.
+	 */
+	var previouslyPressed:Bool = false;
+
+	/**
+	 * Whether the input state has been sampled at least once. On the first
+	 * sample, a finger that is already resting on the button (e.g. held over
+	 * from the previous screen) does not count as a fresh press.
+	 */
+	var initialized:Bool = false;
+
+	/**
+	 * @param x The x position (top-left of the touch area).
+	 * @param y The y position (top-left of the touch area).
+	 * @param action The logical input action.
+	 * @param type Graphic subfolder (`default`, `navigation`, `util`).
+	 * @param imageName Graphic override. Defaults based on `action`.
+	 * @param size On-screen size of the button in pixels.
+	 */
+	public function new(x:Float, y:Float, action:String, ?type:String = 'default', ?imageName:String = null, ?size:Float = 96):Void
 	{
 		super(x, y);
 
@@ -76,9 +106,12 @@ class VirtualButton extends FlxSprite
 			loadGraphic(Paths.image(path));
 		else if (Assets.exists(Paths.image('buttons/default')))
 			loadGraphic(Paths.image('buttons/default'));
+		else
+			makeGraphic(BASE_SIZE, BASE_SIZE, 0xFF808080);
 
-		// Make the buttons slightly larger to increase the touchable area.
-		scale.set(6, 6);
+		// Scale from the real graphic size so the on-screen size always
+		// matches what the layout code expects.
+		setGraphicSize(Std.int(size), Std.int(size));
 		updateHitbox();
 
 		scrollFactor.set();
@@ -87,71 +120,98 @@ class VirtualButton extends FlxSprite
 		antialiasing = false;
 	}
 
+	@:noCompletion
+	function set_enabled(value:Bool):Bool
+	{
+		if (value && !enabled)
+			resetInput();
+
+		return enabled = value;
+	}
+
+	/**
+	 * Forgets the current press state. The next sample will not report
+	 * a `justPressed` for a finger that is already resting on the button.
+	 */
+	public function resetInput():Void
+	{
+		currentlyPressed = false;
+		previouslyPressed = false;
+		initialized = false;
+	}
+
 	private function getTouchCamera():FlxCamera
 	{
-		if (cameras != null && cameras.length > 0 && cameras[0] != null)
-			return cameras[0];
+		var cams = cameras;
+		if (cams != null && cams.length > 0 && cams[0] != null)
+			return cams[0];
 
 		return FlxG.camera;
+	}
+
+	/**
+	 * Whether this button can be interacted with right now.
+	 */
+	public inline function isInteractable():Bool
+		return enabled && visible && exists && alive;
+
+	/**
+	 * Returns whether any touch is currently over this button.
+	 */
+	private function touchIsOver():Bool
+	{
+		#if FLX_TOUCH
+		if (!isInteractable())
+			return false;
+
+		var camera:FlxCamera = getTouchCamera();
+		for (touch in FlxG.touches.list)
+		{
+			if (touch != null && touch.pressed && touch.overlaps(this, camera))
+				return true;
+		}
+		#end
+
+		return false;
+	}
+
+	/**
+	 * Samples touch input. Called once per frame by `MobileInput`.
+	 */
+	public function updateInput():Void
+	{
+		var over:Bool = touchIsOver();
+
+		if (!initialized)
+		{
+			previouslyPressed = over;
+			currentlyPressed = over;
+			initialized = true;
+			return;
+		}
+
+		previouslyPressed = currentlyPressed;
+		currentlyPressed = over;
 	}
 
 	/**
 	 * Returns whether a touch is currently pressing this button.
 	 * Multitouch is supported because every active touch is checked.
 	 */
-	public function isPressed():Bool
-	{
-		if (!enabled || !visible)
-			return false;
-
-		#if FLX_TOUCH
-		for (touch in FlxG.touches.list)
-		{
-			if (touch.pressed && touch.overlaps(this, getTouchCamera()))
-				return true;
-		}
-		#end
-
-		return false;
-	}
+	public inline function isPressed():Bool
+		return isInteractable() && currentlyPressed;
 
 	/**
 	 * Returns whether this button was just pressed this frame.
 	 */
-	public function justPressed():Bool
-	{
-		if (!enabled || !visible)
-			return false;
-
-		#if FLX_TOUCH
-		for (touch in FlxG.touches.list)
-		{
-			if (touch.justPressed && touch.overlaps(this, getTouchCamera()))
-				return true;
-		}
-		#end
-
-		return false;
-	}
+	public inline function justPressed():Bool
+		return isInteractable() && currentlyPressed && !previouslyPressed;
 
 	/**
 	 * Returns whether this button was just released this frame.
 	 */
-	public function justReleased():Bool
-	{
-		if (!enabled || !visible)
-			return false;
-
-		#if FLX_TOUCH
-		for (touch in FlxG.touches.list)
-		{
-			if (touch.justReleased && touch.overlaps(this, getTouchCamera()))
-				return true;
-		}
-		#end
-
-		return false;
-	}
+	public inline function justReleased():Bool
+		return !currentlyPressed && previouslyPressed;
 
 	/**
 	 * Updates the visual appearance of the button.

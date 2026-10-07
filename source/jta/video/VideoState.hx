@@ -5,6 +5,10 @@ import jta.states.BaseState;
 import jta.video.GlobalVideo;
 import flixel.sound.FlxSound;
 import openfl.display.Sprite;
+#if mobile
+import jta.mobile.MobileInput;
+import flixel.input.FlxInput.FlxInputState;
+#end
 #if android
 import extension.videoview.VideoView;
 #end
@@ -95,8 +99,12 @@ class VideoState extends BaseState
 		gfx.beginFill(0xFFFFFF);
 		gfx.drawCircle(0, 0, 20);
 		gfx.endFill();
-		skipSprite.x = FlxG.width - 80;
-		skipSprite.y = FlxG.height - 72;
+		// The sprite lives on the stage, not inside the game, so convert from
+		// game coordinates to stage coordinates (the game is scaled and
+		// letterboxed on phones and resized windows).
+		skipSprite.scaleX = skipSprite.scaleY = FlxG.game.scaleX;
+		skipSprite.x = FlxG.game.x + (FlxG.width - 80) * FlxG.game.scaleX;
+		skipSprite.y = FlxG.game.y + (FlxG.height - 72) * FlxG.game.scaleY;
 		if (canSkip)
 			FlxG.stage.addChild(skipSprite);
 
@@ -143,7 +151,7 @@ class VideoState extends BaseState
 
 		if (canSkip)
 		{
-			if (Input.pressed('confirm'))
+			if (Input.pressed('confirm') #if mobile || MobileInput.checkAnyTouch(PRESSED) #end)
 			{
 				holdTimer = Math.max(0, Math.min(timeToSkip, holdTimer + elapsed));
 			}

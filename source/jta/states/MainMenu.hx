@@ -107,11 +107,16 @@ class MainMenu extends BaseState
 		versionTxt.text += #if (debug && !web) ' (${jta.util.macro.git.GitMacro.getCommitId()})' #else ' (DEMO)' #end;
 		versionTxt.setFormat(Paths.font('main'), 36, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		versionTxt.x = FlxG.width - versionTxt.width - 10;
+		#if mobile
+		// The bottom-right corner is taken by the A button on mobile.
+		versionTxt.alignment = CENTER;
+		versionTxt.screenCenter(X);
+		#end
 		add(versionTxt);
 
 		#if mobile
 		var mobileControls = new MobileInput();
-		mobileControls.setupMenuVertical();
+		mobileControls.setupMenuVertical(false);
 		add(mobileControls);
 		#end
 

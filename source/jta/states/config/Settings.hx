@@ -8,6 +8,9 @@ import jta.states.BaseState;
 import jta.states.config.Option;
 import jta.states.config.Controls;
 import jta.util.FilterUtil;
+#if mobile
+import jta.mobile.MobileInput;
+#end
 
 /**
  * Settings menu to configure game options.
@@ -76,12 +79,16 @@ class Settings extends BaseState
 		};
 		options.push(option);
 
+		// Rebinding needs a physical keyboard/gamepad, and the rebinding screens
+		// have no touch controls, so the option is hidden on mobile.
+		#if !mobile
 		var option:Option = new Option(Locale.getSettings("$CTRLS"), OptionType.Function, function():Void
 		{
 			Data.saveSettings();
 			openSubState(new Controls.DeviceSelect());
 		});
 		options.push(option);
+		#end
 
 		var option:Option = new Option(Locale.getMenu("$EXIT"), OptionType.Function, function():Void
 		{
@@ -117,6 +124,12 @@ class Settings extends BaseState
 		}
 
 		holdTimer = new FlxTimer();
+
+		#if mobile
+		var mobileControls = new MobileInput();
+		mobileControls.setupMenuFull();
+		add(mobileControls);
+		#end
 
 		super.create();
 	}

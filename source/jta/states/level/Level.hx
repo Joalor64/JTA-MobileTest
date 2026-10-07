@@ -3,8 +3,10 @@ package jta.states.level;
 import haxe.Json;
 import flixel.FlxCamera;
 import flixel.FlxSubState;
+import flixel.addons.transition.Transition;
 import flixel.tile.FlxTilemap;
 import jta.mobile.MobileInput;
+import flixel.input.FlxInput.FlxInputState;
 import jta.states.BaseState;
 import jta.substates.GameOver;
 import jta.substates.PauseMenu;
@@ -95,6 +97,12 @@ class Level extends BaseState
 	@:noCompletion
 	private var mobileControls:MobileInput;
 
+	/**
+	 * Whether the mobile controls are currently showing the dialogue layout.
+	 */
+	@:noCompletion
+	private var mobileDialogueLayout:Bool = false;
+
 	var paused:Bool = false;
 
 	/**
@@ -134,18 +142,18 @@ class Level extends BaseState
 		hud.cameras = [camHUD];
 		add(hud);
 
-		#if mobile
-		mobileControls = new MobileInput();
-		mobileControls.cameras = [camHUD];
-		mobileControls.setupGameplay();
-		add(mobileControls);
-		#end
-
 		dialogueBox = new DialogueBox(DialogueBoxPosition.BOTTOM);
 		dialogueBox.cameras = [camHUD];
 		dialogueBox.scrollFactor.set();
 		dialogueBox.kill();
 		add(dialogueBox);
+
+		#if mobile
+		// Added after the dialogue box so the buttons are drawn on top of it.
+		mobileControls = new MobileInput(camHUD);
+		mobileControls.setupGameplay();
+		add(mobileControls);
+		#end
 
 		super.create();
 	}
@@ -166,7 +174,11 @@ class Level extends BaseState
 			}
 		}
 
-		if (Input.justPressed('cancel') && !dialogueBox.alive)
+		#if mobile
+		updateMobileLayout();
+		#end
+
+		if ((Input.justPressed('cancel') #if mobile || MobileInput.checkInput('pause', JUST_PRESSED) #end) && !dialogueBox.alive)
 		{
 			persistentUpdate = false;
 			openSubState(new PauseMenu());
@@ -193,12 +205,16 @@ class Level extends BaseState
 			else if (map != null && player.x > map.width - player.width)
 				player.x = map.width - player.width;
 
+			var canInteract:Bool = false;
+
 			if (objects != null)
 			{
 				objects.forEach(function(obj:Object):Void
 				{
 					if (obj != null && player.characterControllable && player.overlaps(obj) && obj.objectInteractable)
 					{
+						canInteract = true;
+
 						if (Input.pressed('confirm'))
 							obj.interact();
 						else
@@ -206,26 +222,73 @@ class Level extends BaseState
 					}
 				});
 			}
+
+			#if mobile
+			// Only show the interact button while standing on something interactable.
+			if (mobileControls != null && !mobileDialogueLayout)
+			{
+				var interactButton = mobileControls.getButton('confirm');
+				if (interactButton != null)
+					interactButton.visible = canInteract && player.characterControllable;
+			}
+			#end
 		}
 	}
 
+	#if mobile
+	/**
+	 * Swaps the touch controls between the gameplay and dialogue layouts.
+	 */
+	@:noCompletion
+	private function updateMobileLayout():Void
+	{
+		if (mobileControls == null || dialogueBox == null)
+			return;
+
+		if (dialogueBox.alive && !mobileDialogueLayout)
+		{
+			mobileControls.setupDialogue(dialogueBox.boxTop);
+			mobileDialogueLayout = true;
+		}
+		else if (!dialogueBox.alive && mobileDialogueLayout)
+		{
+			mobileControls.setupGameplay();
+			mobileDialogueLayout = false;
+		}
+	}
+	#end
+
 	override function openSubState(SubState:FlxSubState):Void
 	{
-		if (paused)
+		if (!paused && !(SubState is Transition))
+		{
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.pause();
+			paused = true;
+		}
+
+		#if mobile
+		// Hide the gameplay buttons so they don't sit underneath the menu's own buttons.
+		if (mobileControls != null && !(SubState is Transition))
+			mobileControls.setVisible(false);
+		#end
 
 		super.openSubState(SubState);
 	}
 
 	override function closeSubState():Void
 	{
-		if (paused)
+		if (paused && !(subState is Transition))
 		{
 			if (FlxG.sound.music != null)
 				FlxG.sound.music.resume();
 			paused = false;
 		}
+
+		#if mobile
+		if (mobileControls != null)
+			mobileControls.setVisible(true);
+		#end
 
 		super.closeSubState();
 	}

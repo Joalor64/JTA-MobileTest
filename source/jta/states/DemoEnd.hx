@@ -4,6 +4,10 @@ import jta.Paths;
 import jta.input.Input;
 import jta.states.MainMenu;
 import jta.states.BaseState;
+#if mobile
+import jta.mobile.MobileInput;
+import flixel.input.FlxInput.FlxInputState;
+#end
 
 class DemoEnd extends BaseState
 {
@@ -22,7 +26,7 @@ class DemoEnd extends BaseState
 		{
 			new FlxTimer().start(1, function(tmr:FlxTimer):Void
 			{
-				text.text += '\n\nPRESS ANYTHING TO CONTINUE';
+				text.text += #if mobile '\n\nTAP TO CONTINUE' #else '\n\nPRESS ANYTHING TO CONTINUE' #end;
 				soundPlayed = true;
 			});
 		});
@@ -30,7 +34,7 @@ class DemoEnd extends BaseState
 
 	override public function update(elapsed:Float):Void
 	{
-		if (soundPlayed && Input.justPressed('any'))
+		if (soundPlayed && (Input.justPressed('any') #if mobile || MobileInput.checkAnyTouch(JUST_PRESSED) #end))
 		{
 			FlxG.sound.play(Paths.sound('select'));
 			transitionState(new MainMenu());

@@ -121,6 +121,15 @@ class DialogueBox extends FlxSpriteGroup
 			writer.setPosition(box.x, box.y);
 	}
 
+	/**
+	 * The top edge of the visible box, in screen coordinates.
+	 */
+	public var boxTop(get, never):Float;
+
+	@:noCompletion
+	inline function get_boxTop():Float
+		return box != null ? box.y : y;
+
 	public function setPositionType(position:DialogueBoxPosition):Void
 	{
 		var x = Std.int((FlxG.width - BOX_WIDTH) / 2);
