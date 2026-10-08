@@ -16,6 +16,13 @@ class Object extends FlxSprite
 	public var objectInteractable:Bool;
 
 	/**
+	 * Whether the object has an `interact()` action (e.g. signs), as opposed to
+	 * only reacting to being touched (e.g. coins).
+	 * Used to decide when to show the mobile interact button.
+	 */
+	public var objectHasInteraction:Bool = false;
+
+	/**
 	 * Initializes the object with a specified ID.
 	 * @param objectID The ID of the object.
 	 */

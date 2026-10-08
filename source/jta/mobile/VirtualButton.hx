@@ -69,6 +69,14 @@ class VirtualButton extends FlxSprite
 	var initialized:Bool = false;
 
 	/**
+	 * Set when a finger was already resting on the button when it appeared
+	 * (or was re-shown). The button ignores that finger until it lifts off or
+	 * slides away, so e.g. resuming from the pause menu with A doesn't make
+	 * the player jump with the gameplay A button underneath.
+	 */
+	var waitForRelease:Bool = false;
+
+	/**
 	 * @param x The x position (top-left of the touch area).
 	 * @param y The y position (top-left of the touch area).
 	 * @param action The logical input action.
@@ -138,6 +146,7 @@ class VirtualButton extends FlxSprite
 		currentlyPressed = false;
 		previouslyPressed = false;
 		initialized = false;
+		waitForRelease = false;
 	}
 
 	private function getTouchCamera():FlxCamera
@@ -184,10 +193,20 @@ class VirtualButton extends FlxSprite
 
 		if (!initialized)
 		{
-			previouslyPressed = over;
-			currentlyPressed = over;
+			// A finger that is already here doesn't count until it's lifted.
+			waitForRelease = over;
+			previouslyPressed = false;
+			currentlyPressed = false;
 			initialized = true;
 			return;
+		}
+
+		if (waitForRelease)
+		{
+			if (over)
+				over = false;
+			else
+				waitForRelease = false;
 		}
 
 		previouslyPressed = currentlyPressed;

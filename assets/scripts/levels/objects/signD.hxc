@@ -12,6 +12,7 @@ class SignDObject extends Object
 		super('signD');
 
 		objectInteractable = true;
+		objectHasInteraction = true;
 
 		loadGraphic(Paths.image('objects/sign'), true, 16, 16);
 

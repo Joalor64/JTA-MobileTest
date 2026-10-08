@@ -213,7 +213,8 @@ class Level extends BaseState
 				{
 					if (obj != null && player.characterControllable && player.overlaps(obj) && obj.objectInteractable)
 					{
-						canInteract = true;
+						if (obj.objectHasInteraction)
+							canInteract = true;
 
 						if (Input.pressed('confirm'))
 							obj.interact();
