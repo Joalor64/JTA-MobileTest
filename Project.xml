@@ -145,6 +145,8 @@
 	<haxeflag name="--macro" value="nullSafety('jta.registries')" />
 	<haxeflag name="--macro" value="nullSafety('jta.util')" />
 
+	<haxeflag name="--macro" value="addGlobalMetadata('thx.Nil', '@:build(jta.util.macro.ObjCNameFix.build())')" if="ios" />
+
 	<!-- [ Icons ] -->
 
 	<icon path="icon.png" unless="linux" />
