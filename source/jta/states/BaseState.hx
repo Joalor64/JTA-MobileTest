@@ -37,13 +37,24 @@ class BaseState extends FlxTransitionableState
 			Startup.transitionsAllowed = true;
 		}
 
+		// The transition is drawn on the top camera. On mobile that's the
+		// touch-controls camera, which covers the whole screen including the
+		// letterbox bars, so the transition has to be wide enough to cover them too.
+		#if mobile
+		final transWidth:Float = FlxG.width + jta.mobile.MobileInput.barWidth * 2;
+		final transHeight:Float = FlxG.height + jta.mobile.MobileInput.barHeight * 2;
+		#else
+		final transWidth:Float = FlxG.width;
+		final transHeight:Float = FlxG.height;
+		#end
+
 		var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
 		diamond.persist = true;
 		diamond.destroyOnNoUse = false;
 		FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
-			new FlxRect(-300, -300, FlxG.width * 1.8, FlxG.height * 1.8));
+			new FlxRect(-300, -300, transWidth * 1.8, transHeight * 1.8));
 		FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1), {asset: diamond, width: 32, height: 32},
-			new FlxRect(-300, -300, FlxG.width * 1.8, FlxG.height * 1.8));
+			new FlxRect(-300, -300, transWidth * 1.8, transHeight * 1.8));
 
 		transIn = FlxTransitionableState.defaultTransIn;
 		transOut = FlxTransitionableState.defaultTransOut;

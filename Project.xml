@@ -60,6 +60,11 @@
 
 	<define name="NO_REDIRECT_ASSETS_FOLDER" />
 
+	<!-- [ Template Overrides ] -->
+
+	<!-- iOS: adds Info.plist keys so mods/ and logs/ are visible in the Files app (see templates/README.md). -->
+	<template path="templates" if="ios" />
+
 	<!-- [ Libraries ] -->
 
 	<haxelib name="flixel" />

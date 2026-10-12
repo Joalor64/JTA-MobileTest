@@ -90,10 +90,10 @@ class Main extends openfl.display.Sprite
 	public static function main():Void
 	{
 		#if android
-    	Sys.setCwd(haxe.io.Path.addTrailingSlash(extension.androidtools.os.Build.VERSION.SDK_INT > 30 ? extension.androidtools.content.Context.getObbDir() : extension.androidtools.content.Context.getExternalFilesDir()));
-    	#elseif ios
-    	Sys.setCwd(haxe.io.Path.addTrailingSlash(lime.system.System.documentsDirectory));
-    	#end
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(getAndroidStorageDir()));
+		#elseif ios
+		Sys.setCwd(haxe.io.Path.addTrailingSlash(openfl.filesystem.File.documentsDirectory.nativePath));
+		#end
 
 		#if !web
 		jta.util.logging.ErrorHandler.initUncaughtErrorHandler();
@@ -113,6 +113,53 @@ class Main extends openfl.display.Sprite
 		Lib.current.stage.scaleMode = openfl.display.StageScaleMode.NO_SCALE;
 		Lib.current.addChild(new Main());
 	}
+
+	#if android
+	/**
+	 * The folder used for `mods/` and `logs/` on Android.
+	 *
+	 * Prefers `Android/media/<package>/`: unlike `Android/data` and `Android/obb`,
+	 * that folder can still be opened with normal file managers (and from a PC
+	 * over USB) on Android 11 and newer, so players can add mods and find crash logs.
+	 * Falls back to the old location if it can't be created or written to.
+	 */
+	@:nullSafety(Off)
+	private static function getAndroidStorageDir():String
+	{
+		var packageName:String = null;
+		try
+		{
+			packageName = lime.app.Application.current.meta.get('packageName');
+		}
+		catch (e:Dynamic) {}
+
+		if (packageName == null || packageName.length == 0)
+			packageName = 'com.joalor64.jta';
+
+		try
+		{
+			final mediaDir:String = haxe.io.Path.join([
+				extension.androidtools.os.Environment.getExternalStorageDirectory(),
+				'Android',
+				'media',
+				packageName
+			]);
+
+			if (!sys.FileSystem.exists(mediaDir))
+				sys.FileSystem.createDirectory(mediaDir);
+
+			// Make sure we can actually write there before using it.
+			final testFile:String = haxe.io.Path.join([mediaDir, '.write_test']);
+			sys.io.File.saveContent(testFile, '');
+			sys.FileSystem.deleteFile(testFile);
+
+			return mediaDir;
+		}
+		catch (e:Dynamic) {}
+
+		return extension.androidtools.os.Build.VERSION.SDK_INT > 30 ? extension.androidtools.content.Context.getObbDir() : extension.androidtools.content.Context.getExternalFilesDir();
+	}
+	#end
 
 	/**
 	 * Initializes the game and sets up the application.

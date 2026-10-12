@@ -23,6 +23,14 @@ class FramerateUtil
 		if (refreshRate < 60)
 			refreshRate = 60;
 
+		#if mobile
+		// The game itself only updates 60 times a second, so on 90/120 Hz phones
+		// rendering faster just draws the same frame twice: extra heat and battery
+		// drain for no visible gain. Cap the stage at the game's framerate.
+		if (refreshRate > Main.GAME_FRAMERATE)
+			refreshRate = Main.GAME_FRAMERATE;
+		#end
+
 		if (FlxG.stage.frameRate != refreshRate)
 			FlxG.stage.frameRate = refreshRate;
 	}

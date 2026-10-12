@@ -12,6 +12,11 @@ import jta.mobile.VirtualButton;
  * Layouts are computed from the button size and screen size, so changing
  * `buttonSize`, `utilSize`, `margin` or `spacing` keeps everything on screen
  * and non-overlapping.
+ *
+ * The buttons are drawn on their own camera that covers the **whole device
+ * screen**, including the black bars at the sides of a widescreen phone (the
+ * game itself is 4:3). On wide phones the buttons therefore sit in the bars
+ * instead of on top of the game.
  */
 class MobileInput extends FlxTypedGroup<VirtualButton>
 {
@@ -44,9 +49,27 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	public static var utilSize:Float = 64;
 
 	/**
-	 * Distance from the edges of the screen.
+	 * Distance from the top and bottom edges of the screen.
 	 */
 	public static var margin:Float = 24;
+
+	/**
+	 * Distance from the left and right edges of the screen. A bit larger than
+	 * `margin` to keep clear of rounded screen corners and camera cutouts.
+	 */
+	public static var sideMargin:Float = 40;
+
+	/**
+	 * The camera all touch controls are drawn on (see `getControlsCamera()`).
+	 */
+	static var controlsCamera:Null<FlxCamera>;
+
+	static var resizeListenerAdded:Bool = false;
+
+	/**
+	 * Re-applies this instance's current layout (used after a screen resize).
+	 */
+	var relayout:Null<Void->Void>;
 
 	/**
 	 * Gap between neighbouring buttons.
@@ -55,6 +78,9 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 
 	/**
 	 * Creates a mobile input manager.
+	 * @param camera Ignored. Kept so older code (and mods) calling
+	 *               `new MobileInput(someCamera)` still compile; the controls
+	 *               always use the full-screen controls camera.
 	 */
 	public function new(?camera:FlxCamera):Void
 	{
@@ -64,9 +90,93 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 
 		instances.push(this);
 
-		if (camera != null)
-			cameras = [camera];
+		cameras = [getControlsCamera()];
 	}
+
+	// ---------------------------------------------------------------------
+	// Full-screen controls camera
+	// ---------------------------------------------------------------------
+
+	/**
+	 * Returns the camera the touch controls are drawn on, creating it if
+	 * needed. It's added on top of every other camera and stretched to cover
+	 * the whole device screen, letterbox bars included.
+	 *
+	 * Flixel removes all cameras when the state switches, so a new one is
+	 * made for each state; substates (pause menu etc.) reuse their state's.
+	 */
+	public static function getControlsCamera():FlxCamera
+	{
+		if (controlsCamera == null || !FlxG.cameras.list.contains(controlsCamera))
+		{
+			controlsCamera = new FlxCamera();
+			controlsCamera.bgColor = 0x00000000;
+			FlxG.cameras.add(controlsCamera, false);
+			fitCameraToScreen(controlsCamera);
+		}
+
+		if (!resizeListenerAdded)
+		{
+			FlxG.signals.gameResized.add(onGameResized);
+			resizeListenerAdded = true;
+		}
+
+		return controlsCamera;
+	}
+
+	/**
+	 * Width of the letterbox bar on each side of the game, in game pixels.
+	 */
+	public static var barWidth(get, never):Float;
+
+	/**
+	 * Height of the letterbox bar above and below the game, in game pixels.
+	 */
+	public static var barHeight(get, never):Float;
+
+	@:noCompletion
+	static function get_barWidth():Float
+		return (FlxG.scaleMode != null && FlxG.scaleMode.scale.x > 0) ? Math.max(0, FlxG.scaleMode.offset.x / FlxG.scaleMode.scale.x) : 0;
+
+	@:noCompletion
+	static function get_barHeight():Float
+		return (FlxG.scaleMode != null && FlxG.scaleMode.scale.y > 0) ? Math.max(0, FlxG.scaleMode.offset.y / FlxG.scaleMode.scale.y) : 0;
+
+	static function fitCameraToScreen(camera:FlxCamera):Void
+	{
+		final bx:Float = barWidth;
+		final by:Float = barHeight;
+
+		// Negative position + bigger size = the camera reaches into the bars.
+		camera.setPosition(-bx, -by);
+		camera.setSize(Math.ceil(FlxG.width + bx * 2), Math.ceil(FlxG.height + by * 2));
+	}
+
+	static function onGameResized(width:Int, height:Int):Void
+	{
+		if (controlsCamera == null || !FlxG.cameras.list.contains(controlsCamera))
+			return;
+
+		fitCameraToScreen(controlsCamera);
+
+		for (instance in instances)
+			if (instance != null && instance.relayout != null)
+				instance.relayout();
+	}
+
+	/** Width of the area the controls can use (the whole screen), in game pixels. */
+	static inline function screenWidth():Float
+		return FlxG.width + barWidth * 2;
+
+	/** Height of the area the controls can use (the whole screen), in game pixels. */
+	static inline function screenHeight():Float
+		return FlxG.height + barHeight * 2;
+
+	/**
+	 * Converts a y position in game coordinates into controls-camera coordinates.
+	 */
+	public static inline function gameToScreenY(y:Float):Float
+		return y + barHeight;
 
 	@:noCompletion
 	static function get_activeInstance():Null<MobileInput>
@@ -167,16 +277,20 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	// ---------------------------------------------------------------------
 
 	/** Left edge of the left-most column. */
-	inline function leftX(col:Int = 0):Float
-		return margin + col * (buttonSize + spacing);
+	inline function leftX(col:Float = 0):Float
+		return sideMargin + col * (buttonSize + spacing);
 
 	/** Left edge of a column counted from the right edge (0 = right-most). */
 	inline function rightX(col:Int = 0):Float
-		return FlxG.width - margin - buttonSize - col * (buttonSize + spacing);
+		return screenWidth() - sideMargin - buttonSize - col * (buttonSize + spacing);
 
 	/** Top edge of a row counted from the bottom (0 = bottom-most). */
 	inline function bottomY(row:Int = 0):Float
-		return FlxG.height - margin - buttonSize - row * (buttonSize + spacing);
+		return screenHeight() - margin - buttonSize - row * (buttonSize + spacing);
+
+	/** Width of the A/B cluster plus its side margin. */
+	static inline function faceClusterWidth():Float
+		return sideMargin + buttonSize * 2 + spacing;
 
 	/**
 	 * Adds the A/B pair in the bottom-right corner, arranged diagonally
@@ -184,7 +298,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	function addFaceButtons(aAction:String, bAction:Null<String>, ?bottom:Float):Void
 	{
-		var base:Float = bottom ?? FlxG.height - margin;
+		var base:Float = bottom ?? screenHeight() - margin;
 		var aY:Float = base - buttonSize - (buttonSize + spacing) * 0.5;
 		var bY:Float = base - buttonSize;
 
@@ -204,6 +318,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public function setupGameplay():Void
 	{
+		relayout = setupGameplay;
 		clearButtons();
 
 		addButton(leftX(0), bottomY(0), 'left', 'navigation');
@@ -211,10 +326,10 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 
 		addFaceButtons('jump', 'run');
 
-		addButton((FlxG.width - utilSize) / 2, margin, 'pause', 'util', null, utilSize);
+		addButton((screenWidth() - utilSize) / 2, margin, 'pause', 'util', null, utilSize);
 
 		// Interact (signs etc.). Uses the "up" arrow, centred above left/right.
-		var interact = addButton(margin + (buttonSize + spacing) * 0.5, bottomY(1), 'confirm', 'navigation', 'up');
+		var interact = addButton(leftX(0.5), bottomY(1), 'confirm', 'navigation', 'up');
 		interact.visible = false;
 	}
 
@@ -225,9 +340,16 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public function setupDialogue(?boxTop:Float):Void
 	{
+		relayout = () -> setupDialogue(boxTop);
 		clearButtons();
 
-		var bottom:Float = (boxTop != null && boxTop > FlxG.height * 0.5) ? boxTop - spacing : FlxG.height - margin;
+		var bottom:Float = screenHeight() - margin;
+
+		// If the buttons fit in the right-hand letterbox bar they can't cover the
+		// box, so they stay in the corner. Otherwise move them above the box.
+		if (barWidth < faceClusterWidth() && boxTop != null && boxTop > FlxG.height * 0.5)
+			bottom = gameToScreenY(boxTop) - spacing;
+
 		addFaceButtons('confirm', 'cancel', bottom);
 	}
 
@@ -237,6 +359,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public function setupMenuVertical(?showCancel:Bool = true):Void
 	{
+		relayout = () -> setupMenuVertical(showCancel);
 		clearButtons();
 
 		addButton(leftX(0), bottomY(1), 'up', 'navigation');
@@ -251,6 +374,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public function setupMenuHorizontal(?showCancel:Bool = true):Void
 	{
+		relayout = () -> setupMenuHorizontal(showCancel);
 		clearButtons();
 
 		addButton(leftX(0), bottomY(0), 'left', 'navigation');
@@ -266,6 +390,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	 */
 	public function setupMenuFull(?showCancel:Bool = true):Void
 	{
+		relayout = () -> setupMenuFull(showCancel);
 		clearButtons();
 
 		addButton(leftX(1), bottomY(2), 'up', 'navigation');
@@ -283,9 +408,9 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	public function setupUtility(?showBack:Bool = false, ?showSkip:Bool = false, ?showPause:Bool = false):Void
 	{
 		if (showBack)
-			addButton(margin, margin, 'cancel', 'util', 'back', utilSize);
+			addButton(sideMargin, margin, 'cancel', 'util', 'back', utilSize);
 
-		var rightSlot:Float = FlxG.width - margin - utilSize;
+		var rightSlot:Float = screenWidth() - sideMargin - utilSize;
 
 		if (showSkip)
 		{
@@ -391,6 +516,7 @@ class MobileInput extends FlxTypedGroup<VirtualButton>
 	override public function destroy():Void
 	{
 		instances.remove(this);
+		relayout = null;
 
 		super.destroy();
 	}

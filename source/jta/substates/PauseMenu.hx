@@ -44,7 +44,7 @@ class PauseMenu extends BaseSubState
 		}
 
 		#if mobile
-		mobileControls = new MobileInput(FlxG.cameras.list[1]);
+		mobileControls = new MobileInput();
 		mobileControls.setupMenuVertical(false);
 		add(mobileControls);
 		#end

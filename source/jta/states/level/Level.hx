@@ -150,7 +150,7 @@ class Level extends BaseState
 
 		#if mobile
 		// Added after the dialogue box so the buttons are drawn on top of it.
-		mobileControls = new MobileInput(camHUD);
+		mobileControls = new MobileInput();
 		mobileControls.setupGameplay();
 		add(mobileControls);
 		#end
@@ -267,7 +267,7 @@ class Level extends BaseState
 
 	#if mobile
 	/**
-	 * Called when the app goes to the background.
+	 * Called when the app goes to the background. 
 	 * Opens the pause menu so the player comes back
 	 * to a paused game instead of resuming straight into the action.
 	 */
