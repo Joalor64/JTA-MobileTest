@@ -12,6 +12,9 @@ import flixel.input.FlxInput.FlxInputState;
 #if android
 import extension.videoview.VideoView;
 #end
+#if ios
+import iosvideo.IOSVideo;
+#end
 
 /**
  * Class used to play videos.
@@ -68,6 +71,9 @@ class VideoState extends BaseState
 		#if android
 		VideoView.playVideo(Paths.video(source));
 		VideoView.onCompletion = () -> end();
+		#elseif ios
+		IOSVideo.play(Paths.video(source));
+		IOSVideo.onComplete = () -> end();
 		#else
 		if (GlobalVideo.isWebm)
 			vidSound = FlxG.sound.play(Paths.videoSound(source), 1, false, null, true);

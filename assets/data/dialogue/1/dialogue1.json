@@ -3,77 +3,42 @@
         {
             "typer": "sign",
             "portrait": "sign",
-            "text": "Hello, and welcome to\nJourney Through\nAubekhia!"
+            "text": "Along the way, you can\nfind some neat\ngolden coins!"
         },
         {
             "typer": "sign",
             "portrait": "sign",
-            "text": "I, amongst other signs,\nare here to guide you\non your quest!"
+            "text": "And they give you\npoints!"
         },
         {
             "typer": "player",
             "portrait": "player",
-            "text": "What quest? I'm just\ngoing for long walk."
+            "text": "That sounds cool, but\nwhat can I use\nthem for?"
         },
         {
             "typer": "sign",
             "portrait": "sign",
-            "text": "Wait, really? You don't\nhave something\nimportant to do?"
+            "text": "I mean, if you collect\nenough, you can get\nan extra life."
         },
         {
             "typer": "sign",
             "portrait": "sign",
-            "text": "Like saving the world\nor something?"
+            "text": "Or something like that.\nIDK."
         },
         {
             "typer": "player",
             "portrait": "player",
-            "text": "No, not really."
-        },
-        {
-            "typer": "player",
-            "portrait": "player",
-            "text": "Also, do all signs\nhere talk?"
+            "text": "Did you really just\nsay 'IDK' out loud?"
         },
         {
             "typer": "sign",
             "portrait": "sign",
-            "text": "...[wait:1]Yeah?"
+            "text": "Yeah."
         },
         {
             "typer": "player",
             "portrait": "player",
             "text": "[face:bruh]..."
-        },
-        {
-            "typer": "player",
-            "portrait": "player",
-            "text": "[face:default]Okay, so what are you\nhere to help me with?"
-        },
-        {
-            "typer": "sign",
-            "portrait": "sign",
-            "text": "The basics, of course!\nHow to get to\nplaces and such!"
-        },
-        {
-            "typer": "sign",
-            "portrait": "sign",
-            "text": "For example:\nUse LEFT and RIGHT\nto move."
-        },
-        {
-            "typer": "sign",
-            "portrait": "sign",
-            "text": "Use SPACE to jump."
-        },
-        {
-            "typer": "sign",
-            "portrait": "sign",
-            "text": "And SHIFT to run!"
-        },
-        {
-            "typer": "player",
-            "portrait": "player",
-            "text": "Sounds good to me."
         }
     ]
 }

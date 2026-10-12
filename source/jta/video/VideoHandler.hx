@@ -71,6 +71,11 @@ class VideoHandler
 
 	public function play():Void
 	{
+		stopped = false;
+		restarted = false;
+		played = false;
+		ended = false;
+		
 		#if web
 		ignoreShit = true;
 		netStream.close();
