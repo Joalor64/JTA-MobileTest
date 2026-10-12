@@ -26,7 +26,8 @@ import cpp.SizeT;
 		<files id="memory" />
 	</target>
 ')
-@:include("memory.hpp") extern class Memory
+@:include("memory.hpp")
+extern class Memory
 {
 	/**
 	 * Returns the peak (maximum so far) resident set size (physical
