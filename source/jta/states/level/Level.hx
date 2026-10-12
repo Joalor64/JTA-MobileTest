@@ -179,10 +179,7 @@ class Level extends BaseState
 		#end
 
 		if ((Input.justPressed('cancel') #if mobile || MobileInput.checkInput('pause', JUST_PRESSED) #end) && !dialogueBox.alive)
-		{
-			persistentUpdate = false;
-			openSubState(new PauseMenu());
-		}
+			pauseGame();
 
 		if (Global.lives == 0)
 		{
@@ -256,6 +253,32 @@ class Level extends BaseState
 			mobileControls.setupGameplay();
 			mobileDialogueLayout = false;
 		}
+	}
+	#end
+
+	/**
+	 * Opens the pause menu.
+	 */
+	public function pauseGame():Void
+	{
+		persistentUpdate = false;
+		openSubState(new PauseMenu());
+	}
+
+	#if mobile
+	/**
+	 * Called when the app goes to the background.
+	 * Opens the pause menu so the player comes back
+	 * to a paused game instead of resuming straight into the action.
+	 */
+	override public function onFocusLost():Void
+	{
+		super.onFocusLost();
+
+		if (subState != null || dialogueBox == null || dialogueBox.alive)
+			return;
+
+		pauseGame();
 	}
 	#end
 

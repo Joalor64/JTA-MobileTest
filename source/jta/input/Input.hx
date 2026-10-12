@@ -129,6 +129,11 @@ class Input
 			return true;
 		#end
 
+		#if android
+		if (checkAndroidBack(tag, state))
+			return true;
+		#end
+
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
 		if (binds.exists(tag))
@@ -165,6 +170,17 @@ class Input
 		return false;
 	}
 
+	#if android
+	/**
+	 * The Android system back button acts as `cancel`
+	 * Main.hx stops it from closing the app via `FlxG.android.preventDefaultKeys`.
+	 */
+	static function checkAndroidBack(tag:String, state:FlxInputState):Bool
+	{
+		return tag == 'cancel' && FlxG.android != null && FlxG.android.checkStatus(BACK, state);
+	}
+	#end
+
 	/**
 	 * Checks if any of the inputs associated with the given tags are in the specified state.
 	 * @param tags An array of action names to check.
@@ -184,6 +200,14 @@ class Input
 				if (MobileInput.checkInput(tag, state))
 					return true;
 			}
+		}
+		#end
+
+		#if android
+		for (tag in tags)
+		{
+			if (checkAndroidBack(tag, state))
+				return true;
 		}
 		#end
 

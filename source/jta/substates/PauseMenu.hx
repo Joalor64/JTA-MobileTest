@@ -74,6 +74,12 @@ class PauseMenu extends BaseSubState
 					transitionState(new MainMenu());
 			}
 		}
+		else if (Input.justPressed('cancel'))
+		{
+			// Back button (or Esc) resumes, so it toggles the pause menu.
+			FlxG.sound.play(Paths.sound('select'));
+			close();
+		}
 
 		selectionGroup.forEach(function(text:FlxText):Void
 		{
