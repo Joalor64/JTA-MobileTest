@@ -9,6 +9,14 @@ import cpp.SizeT;
  * @author Leather128 (Haxe) - David Robert Nadeau (Original C Header)
  */
 @:buildXml('
+	<files id='haxe'>
+        <compilervalue name="-I" value="${PROJECT_DIR}/include/" />
+    </files>
+
+    <files id='__main__'>
+        <compilervalue name="-I" value="${PROJECT_DIR}/include/" />
+    </files>
+	
 	<files id="memory">
 		<compilervalue name="-I" value="${PROJECT_DIR}/include/" />
 		<file name="${PROJECT_DIR}/src/memory.cpp" />
