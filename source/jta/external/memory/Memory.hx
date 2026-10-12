@@ -8,9 +8,17 @@ import cpp.SizeT;
  * for the program.
  * @author Leather128 (Haxe) - David Robert Nadeau (Original C Header)
  */
-@:buildXml('<include name="${__DIR__}/build.xml" />')
-@:include("memory.hpp")
-extern class Memory
+@:buildXml('
+	<files id="memory">
+		<compilervalue name="-I" value="${PROJECT_DIR}/include/" />
+		<file name="${PROJECT_DIR}/src/memory.cpp" />
+	</files>
+	
+	<target id="haxe">
+		<files id="memory" />
+	</target>
+')
+@:include("memory.hpp") extern class Memory
 {
 	/**
 	 * Returns the peak (maximum so far) resident set size (physical
