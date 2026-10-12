@@ -7,7 +7,7 @@ import openfl.system.System;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import flixel.util.FlxStringUtil;
-#if !web
+#if (!web && !ios)
 import jta.external.memory.Memory;
 #end
 
@@ -59,7 +59,7 @@ class FPS extends TextField
 
 			var mem:Float;
 			var memPeak:Float;
-			#if !web
+			#if (!web && !ios)
 			mem = Memory.getCurrentUsage();
 			memPeak = Memory.getPeakUsage();
 			#else

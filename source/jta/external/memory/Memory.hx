@@ -8,24 +8,7 @@ import cpp.SizeT;
  * for the program.
  * @author Leather128 (Haxe) - David Robert Nadeau (Original C Header)
  */
-@:buildXml('
-	<files id="haxe">
-        <compilervalue name="-I" value="${PROJECT_DIR}/include/" />
-    </files>
-
-    <files id="__main__">
-        <compilervalue name="-I" value="${PROJECT_DIR}/include/" />
-    </files>
-	
-	<files id="memory">
-		<compilervalue name="-I" value="${PROJECT_DIR}/include/" />
-		<file name="${PROJECT_DIR}/src/memory.cpp" />
-	</files>
-	
-	<target id="haxe">
-		<files id="memory" />
-	</target>
-')
+@:buildXml('<include name="../../../../source/jta/external/memory/build.xml" />')
 @:include("memory.hpp")
 extern class Memory
 {

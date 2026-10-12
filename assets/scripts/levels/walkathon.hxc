@@ -28,7 +28,7 @@ class WalkathonLevel extends Level
 		loadMap('world1/lev3', 'w1_tiles');
 		loadObjects('world1/lev3');
 
-		loadPlayer('mainplayer', 16, 200);
+		loadPlayer('mainplayer', 16, 145);
 
 		super.create();
 	}
