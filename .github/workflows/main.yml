@@ -47,7 +47,7 @@ jobs:
           - target: ios
             title: iOS
             runs-on: macos-15
-            artifact_path: export/debug/ios/build/Release-iphoneos/*.ipa
+            artifact_path: export/debug/ios/build/Debug-iphoneos/*.ipa
             artifact_name: iOSBuild
 
     name: build${{ matrix.title }}
