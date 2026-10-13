@@ -170,7 +170,7 @@ jobs:
       - name: Create IPA Package (iOS)
         if: matrix.target == 'ios'
         run: |
-          cd export/debug/ios/build/Release-iphoneos
+          cd export/debug/ios/build/Debug-iphoneos
           mkdir -p Payload
           cp -r *.app Payload/
           zip -r Game-iOS-Unsigned.ipa Payload
